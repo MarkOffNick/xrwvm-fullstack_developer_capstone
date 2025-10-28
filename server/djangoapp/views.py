@@ -98,12 +98,22 @@ def add_review(request):
         try:
             response = post_review(data)
             if response.status_code == 200:
-                return JsonResponse({"status": 200, "message": "Review added successfully"})
+                return JsonResponse({
+                    "status": 200,
+                    "message": "Review added successfully"
+                })
             else:
-                return JsonResponse({"status": 401, "message": "Error in posting review"})
+                return JsonResponse({
+                    "status": 401,
+                    "message": "Error in posting review"
+                })
         except BaseException:
-            return JsonResponse(
-                {"status": 401, "message": "Error in posting review"}
-            )
+            return JsonResponse({
+                "status": 401,
+                "message": "Error in posting review"
+            })
     else:
-        return JsonResponse({"status": 403, "message": "Unauthorized"})
+        return JsonResponse({
+            "status": 403,
+            "message": "Unauthorized"
+        })
