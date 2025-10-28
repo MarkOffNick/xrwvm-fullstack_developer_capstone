@@ -63,10 +63,10 @@ def registration(request):
     first_name = data["firstName"]
     last_name = data["lastName"]
     email = data["email"]
-    
+
     username_exist = False
     email_exist = False
-    
+
     try:
         # Check if username already exists
         User.objects.get(username=username)
@@ -74,7 +74,7 @@ def registration(request):
     except User.DoesNotExist:
         # If not, log this is a new username
         logger.debug("{} is new user".format(username))
-    
+
     try:
         # Check if email already exists
         User.objects.get(email=email)
@@ -82,7 +82,7 @@ def registration(request):
     except User.DoesNotExist:
         # If not, log this is a new email
         logger.debug("{} has a new email".format(email))
-    
+
     # If both username and email are new
     if not username_exist and not email_exist:
         try:
@@ -101,7 +101,7 @@ def registration(request):
         except Exception as e:
             # Log the error and return a generic error response
             logger.error("Error creating user {}: {}".format(username, str(e)))
-            return JsonResponse({"error": "Internal server error during registration"})
+            return JsonResponse({"error": "Error registration"})
     else:
         # Determine which one exists and return appropriate error
         if username_exist and email_exist:
