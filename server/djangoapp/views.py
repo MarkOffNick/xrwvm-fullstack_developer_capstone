@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -55,8 +56,6 @@ def logout_request(request):
 # Create a `registration` view to handle sign up request
 @csrf_exempt
 def registration(request):
-    context = {}
-
     # Load JSON data from the request body
     data = json.loads(request.body)
     username = data["userName"]
@@ -64,32 +63,54 @@ def registration(request):
     first_name = data["firstName"]
     last_name = data["lastName"]
     email = data["email"]
+    
     username_exist = False
     email_exist = False
+    
     try:
-        # Check if user already exists
+        # Check if username already exists
         User.objects.get(username=username)
         username_exist = True
-    except:
-        # If not, simply log this is a new user
+    except User.DoesNotExist:
+        # If not, log this is a new username
         logger.debug("{} is new user".format(username))
-
-    # If it is a new user
-    if not username_exist:
-        # Create user in auth_user table
-        user = User.objects.create_user(
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-            password=password,
-            email=email,
-        )
-        # Login the user and redirect to list page
-        login(request, user)
-        data = {"userName": username, "status": "Authenticated"}
-        return JsonResponse(data)
+    
+    try:
+        # Check if email already exists
+        User.objects.get(email=email)
+        email_exist = True
+    except User.DoesNotExist:
+        # If not, log this is a new email
+        logger.debug("{} has a new email".format(email))
+    
+    # If both username and email are new
+    if not username_exist and not email_exist:
+        try:
+            # Create user in auth_user table
+            user = User.objects.create_user(
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                password=password,
+                email=email,
+            )
+            # Login the user and redirect to list page
+            login(request, user)
+            data = {"userName": username, "status": "Authenticated"}
+            return JsonResponse(data)
+        except Exception as e:
+            # Log the error and return a generic error response
+            logger.error("Error creating user {}: {}".format(username, str(e)))
+            return JsonResponse({"error": "Internal server error during registration"})
     else:
-        data = {"userName": username, "error": "Already Registered"}
+        # Determine which one exists and return appropriate error
+        if username_exist and email_exist:
+            error_msg = "Username and email already registered"
+        elif username_exist:
+            error_msg = "Username already registered"
+        else:
+            error_msg = "Email already registered"
+        data = {"userName": username, "error": error_msg}
         return JsonResponse(data)
 
 
