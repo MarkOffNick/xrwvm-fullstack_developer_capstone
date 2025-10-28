@@ -59,11 +59,11 @@ def registration(request):
 
     # Load JSON data from the request body
     data = json.loads(request.body)
-    username = data['userName']
-    password = data['password']
-    first_name = data['firstName']
-    last_name = data['lastName']
-    email = data['email']
+    username = data["userName"]
+    password = data["password"]
+    first_name = data["firstName"]
+    last_name = data["lastName"]
+    email = data["email"]
     username_exist = False
     email_exist = False
     try:
@@ -78,18 +78,18 @@ def registration(request):
     if not username_exist:
         # Create user in auth_user table
         user = User.objects.create_user(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                password=password,
-                email=email
-            )
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            password=password,
+            email=email,
+        )
         # Login the user and redirect to list page
         login(request, user)
-        data = {"userName":username,"status":"Authenticated"}
+        data = {"userName": username, "status": "Authenticated"}
         return JsonResponse(data)
-    else :
-        data = {"userName":username,"error":"Already Registered"}
+    else:
+        data = {"userName": username, "error": "Already Registered"}
         return JsonResponse(data)
 
 
@@ -133,22 +133,16 @@ def add_review(request):
         try:
             response = post_review(data)
             if response.status_code == 200:
-                return JsonResponse({
-                    "status": 200,
-                    "message": "Review added successfully"
-                })
+                return JsonResponse(
+                    {"status": 200, "message": "Review added successfully"}
+                )
             else:
-                return JsonResponse({
-                    "status": 401,
-                    "message": "Error in posting review"
-                })
+                return JsonResponse(
+                    {"status": 401, "message": "Error in posting review"}
+                )
         except BaseException:
-            return JsonResponse({
-                "status": 401,
-                "message": "Error in posting review"
-            })
+            return JsonResponse(
+                {"status": 401, "message": "Error in posting review"}
+            )
     else:
-        return JsonResponse({
-            "status": 403,
-            "message": "Unauthorized"
-        })
+        return JsonResponse({"status": 403, "message": "Unauthorized"})
