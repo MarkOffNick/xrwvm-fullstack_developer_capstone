@@ -1,0 +1,11 @@
+{
+  "esversion": 8,
+  "asi": true,
+  "sub": true,
+  "node": true,
+  "browser": true,
+  "globals": {
+    "MongoClient": true,
+    "ObjectId": true
+  }
+}
