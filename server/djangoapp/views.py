@@ -1,12 +1,8 @@
 import json
 import logging
-from datetime import datetime
 
-from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import CarMake, CarModel
@@ -101,7 +97,10 @@ def add_review(request):
         data = json.loads(request.body)
         try:
             response = post_review(data)
-            return JsonResponse({"status": 200})
+            if response.status_code == 200:
+                return JsonResponse({"status": 200, "message": "Review added successfully"})
+            else:
+                return JsonResponse({"status": 401, "message": "Error in posting review"})
         except BaseException:
             return JsonResponse(
                 {"status": 401, "message": "Error in posting review"}
